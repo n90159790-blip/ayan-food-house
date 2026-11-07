@@ -1,0 +1,382 @@
+<!doctype html>
+<html lang="bn">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>রসুইঘর</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@400;500;600;700&family=Tiro+Bangla&display=swap">
+<style>
+/* Layout: one narrow column like a printed menu card; sticky category tabs, running cart bar at the bottom. */
+:root{
+  --bg:#F4F6EF; --surface:#FFFFFF; --fg:#15251B; --muted:#5B6B60; --line:#D9DFD2;
+  --accent:#1F6B45; --accent-fg:#FFFFFF; --gold:#B98200; --veg:#2E8B4A; --nonveg:#B3261E;
+  --font-display:"Tiro Bangla","Noto Serif Bengali",Georgia,serif;
+  --font-body:"Hind Siliguri","Noto Sans Bengali",system-ui,-apple-system,"Segoe UI",sans-serif;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#0F1812; --surface:#16231B; --fg:#EAF0E6; --muted:#9DB0A2; --line:#2A3A30;
+    --accent:#4FB67F; --accent-fg:#08140D; --gold:#E3B341; --veg:#4FB67F; --nonveg:#EF6F66;
+    color-scheme:dark;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#0F1812; --surface:#16231B; --fg:#EAF0E6; --muted:#9DB0A2; --line:#2A3A30;
+  --accent:#4FB67F; --accent-fg:#08140D; --gold:#E3B341; --veg:#4FB67F; --nonveg:#EF6F66;
+  color-scheme:dark;
+}
+*{box-sizing:border-box}
+body{
+  background:var(--bg); color:var(--fg); font-family:var(--font-body); font-size:16px; line-height:1.55;
+  padding-block:0 96px;
+  padding-left:max(16px, env(safe-area-inset-left, 0px));
+  padding-right:max(16px, env(safe-area-inset-right, 0px));
+}
+body::before{content:""; position:fixed; inset:0 0 auto; height:env(safe-area-inset-top, 0px); z-index:10; background:var(--bg)}
+.wrap{max-width:760px; margin:0 auto}
+button,input,select,textarea{font:inherit; color:inherit}
+:focus-visible{outline:3px solid var(--gold); outline-offset:2px}
+
+header.top{padding:40px 0 20px; display:grid; gap:10px}
+.kicker{font-size:13px; letter-spacing:.08em; color:var(--gold); font-weight:600}
+h1{font-family:var(--font-display); font-weight:400; font-size:clamp(44px,13vw,76px); line-height:1.1; margin:0; text-wrap:balance}
+.tag{margin:0; color:var(--muted); font-size:18px; max-width:34ch}
+.how{display:flex; flex-wrap:wrap; gap:8px 18px; margin:6px 0 0; padding:0; list-style:none; font-size:14px; color:var(--muted)}
+.how li{min-width:0}
+.how b{color:var(--fg); font-weight:600}
+
+nav.cats{
+  position:sticky; top:env(safe-area-inset-top, 0px); z-index:5; background:var(--bg);
+  border-bottom:1px solid var(--line); margin:0 -16px; padding:0 16px;
+}
+nav.cats ul{display:flex; gap:6px; margin:0 auto; padding:10px 0; list-style:none; overflow-x:auto; max-width:760px; scrollbar-width:none}
+nav.cats ul::-webkit-scrollbar{display:none}
+nav.cats button{
+  white-space:nowrap; border:1px solid var(--line); background:var(--surface); border-radius:999px;
+  padding:6px 14px; font-size:15px; cursor:pointer;
+}
+nav.cats button[aria-current="true"]{background:var(--accent); color:var(--accent-fg); border-color:var(--accent)}
+
+section.cat{padding-top:30px; scroll-margin-top:70px}
+section.cat h2{font-family:var(--font-display); font-weight:400; font-size:28px; margin:0 0 4px}
+section.cat .sub{margin:0 0 6px; color:var(--muted); font-size:14px}
+.item{display:grid; grid-template-columns:minmax(0,1fr) auto; gap:4px 16px; padding:16px 0; border-bottom:1px solid var(--line); align-items:start}
+.item:last-child{border-bottom:0}
+.nm{display:flex; gap:8px; align-items:baseline; font-weight:600; font-size:17px}
+.dot{flex:none; width:13px; height:13px; border:1.5px solid var(--veg); display:inline-grid; place-items:center; transform:translateY(1px)}
+.dot::after{content:""; width:6px; height:6px; border-radius:50%; background:var(--veg)}
+.dot.nv{border-color:var(--nonveg)}
+.dot.nv::after{background:var(--nonveg)}
+.ds{grid-column:1; margin:0; color:var(--muted); font-size:14.5px}
+.pr{grid-column:1; font-variant-numeric:tabular-nums; font-weight:600; color:var(--gold)}
+.ctl{grid-column:2; grid-row:1 / span 3; align-self:center; justify-self:end}
+.add{
+  border:1.5px solid var(--accent); color:var(--accent); background:transparent; border-radius:8px;
+  padding:6px 20px; font-weight:600; cursor:pointer; min-width:84px;
+}
+.add:hover{background:var(--accent); color:var(--accent-fg)}
+.step{display:inline-flex; align-items:center; background:var(--accent); color:var(--accent-fg); border-radius:8px; overflow:hidden}
+.step button{background:transparent; border:0; color:inherit; width:36px; height:36px; font-size:20px; cursor:pointer; line-height:1}
+.step button:hover{background:rgba(0,0,0,.15)}
+.step span{min-width:26px; text-align:center; font-weight:700; font-variant-numeric:tabular-nums}
+
+#order{padding-top:44px; scroll-margin-top:20px}
+#order h2{font-family:var(--font-display); font-weight:400; font-size:32px; margin:0 0 14px}
+.panel{background:var(--surface); border:1px solid var(--line); border-radius:12px; padding:18px; display:grid; gap:16px}
+.empty{margin:0; color:var(--muted)}
+.line{display:grid; grid-template-columns:minmax(0,1fr) auto auto; gap:12px; align-items:center; padding:6px 0}
+.line .t{min-width:0; overflow-wrap:anywhere}
+.line .s{font-variant-numeric:tabular-nums; min-width:64px; text-align:right}
+.total{display:flex; justify-content:space-between; font-size:20px; font-weight:700; border-top:1px solid var(--line); padding-top:12px; font-variant-numeric:tabular-nums}
+.form{display:grid; gap:14px}
+.f{display:grid; gap:4px}
+.f label{font-size:14px; color:var(--muted); font-weight:500}
+.f input,.f select,.f textarea{
+  background:var(--bg); border:1px solid var(--line); border-radius:8px; padding:10px 12px; width:100%; min-width:0;
+}
+.f textarea{min-height:72px; resize:vertical}
+.row2{display:grid; grid-template-columns:repeat(auto-fit,minmax(200px,1fr)); gap:14px}
+.send{
+  display:block; text-align:center; text-decoration:none; background:var(--accent); color:var(--accent-fg);
+  border-radius:10px; padding:14px 18px; font-weight:700; font-size:17px;
+}
+.send[aria-disabled="true"]{opacity:.45; pointer-events:none}
+.alt{display:flex; flex-wrap:wrap; gap:10px; align-items:center}
+.ghost{background:transparent; border:1px solid var(--line); border-radius:8px; padding:8px 14px; cursor:pointer}
+.msg{margin:0; font-size:14px; color:var(--muted); min-height:1.4em}
+.msg.err{color:var(--nonveg)}
+#preview{font-size:14px; min-height:150px; font-family:var(--font-body)}
+details summary{cursor:pointer; color:var(--muted); font-size:14px}
+
+footer{padding:40px 0 10px; color:var(--muted); font-size:14px; text-align:center}
+
+.bar{
+  position:fixed; left:0; right:0; bottom:0; z-index:6; background:var(--accent); color:var(--accent-fg);
+  padding:12px max(16px, env(safe-area-inset-right, 0px)) calc(12px + env(safe-area-inset-bottom, 0px)) max(16px, env(safe-area-inset-left, 0px));
+}
+.bar .in{max-width:760px; margin:0 auto; display:flex; justify-content:space-between; align-items:center; gap:12px}
+.bar b{font-variant-numeric:tabular-nums}
+.bar button{background:var(--accent-fg); color:var(--accent); border:0; border-radius:8px; padding:9px 18px; font-weight:700; cursor:pointer}
+@media (prefers-reduced-motion:no-preference){ html{scroll-behavior:smooth} }
+</style>
+<style>:root{color-scheme:light}body{margin:0}img{max-width:100%}[hidden]{display:none!important}</style>
+</head>
+<body>
+
+<div class="wrap">
+  <header class="top">
+    <div class="kicker">বাঙালি রান্না</div>
+    <h1>রসুইঘর</h1>
+    <p class="tag">ঘরের মতো স্বাদ, মায়ের হাতের মতো যত্ন।</p>
+    <ul class="how">
+      <li><b>১.</b> পছন্দের খাবার বেছে নিন</li>
+      <li><b>২.</b> নাম, ফোন আর ঠিকানা দিন</li>
+      <li><b>৩.</b> WhatsApp-এ অর্ডার পাঠান</li>
+    </ul>
+  </header>
+</div>
+
+<nav class="cats" aria-label="মেনুর বিভাগ"><ul id="catnav"></ul></nav>
+
+<main class="wrap">
+  <div id="menu"></div>
+
+  <section id="order" aria-labelledby="order-h">
+    <h2 id="order-h">আপনার অর্ডার</h2>
+    <div class="panel">
+      <div id="cartlines"></div>
+      <div class="form" id="form">
+        <div class="row2">
+          <div class="f"><label for="cname">আপনার নাম</label><input id="cname" autocomplete="name"></div>
+          <div class="f"><label for="cphone">ফোন নম্বর</label><input id="cphone" type="tel" inputmode="tel" autocomplete="tel"></div>
+        </div>
+        <div class="f">
+          <label for="ctype">কীভাবে নেবেন</label>
+          <select id="ctype">
+            <option>বাড়িতে ডেলিভারি</option>
+            <option>নিজে এসে নিয়ে যাব</option>
+            <option>রেস্টুরেন্টে বসে খাব</option>
+          </select>
+        </div>
+        <div class="f" id="addrbox"><label for="caddr">ডেলিভারির ঠিকানা</label><textarea id="caddr" autocomplete="street-address"></textarea></div>
+        <div class="f"><label for="cnote">কিছু বলার থাকলে (ঝাল কম, আলাদা প্যাকেট ইত্যাদি)</label><input id="cnote"></div>
+        <a class="send" id="send" href="#" target="_blank" rel="noopener" aria-disabled="true">WhatsApp-এ অর্ডার পাঠান</a>
+        <p class="msg" id="msg" role="status"></p>
+        <div class="alt">
+          <button type="button" class="ghost" id="copy">অর্ডার কপি করুন</button>
+          <button type="button" class="ghost" id="clear">সব মুছে নতুন করে শুরু</button>
+        </div>
+        <details><summary>অর্ডারের লেখা দেখুন</summary><textarea id="preview" readonly style="width:100%;margin-top:8px;background:var(--bg);border:1px solid var(--line);border-radius:8px;padding:10px"></textarea></details>
+      </div>
+    </div>
+  </section>
+  <footer>© রসুইঘর</footer>
+</main>
+
+<div class="bar" id="bar" hidden>
+  <div class="in">
+    <div><span id="barcount"></span> · <b id="bartotal"></b></div>
+    <button type="button" id="barbtn">অর্ডার দিন</button>
+  </div>
+</div>
+
+<script>
+// ---- মালিকের জন্য: নিচের নাম্বারটি নিজের WhatsApp নম্বর দিয়ে বদলান (দেশ কোড সহ, যেমন 919812345678) ----
+var WHATSAPP = "919000000000";
+var SHOP = "রসুইঘর";
+
+var MENU = [
+  {id:"fish", name:"ভাত ও মাছ", sub:"সব পদের সঙ্গে সাদা ভাত", items:[
+    {id:"f1", n:"ইলিশ ভাপা", d:"সর্ষে-নারকেল বাটায় কলাপাতায় ভাপানো", p:420, v:0},
+    {id:"f2", n:"সর্ষে ইলিশ", d:"ঝাঁঝালো কালো সর্ষের ঝোলে", p:400, v:0},
+    {id:"f3", n:"চিংড়ির মালাইকারি", d:"নারকেল দুধে গলদা চিংড়ি", p:460, v:0},
+    {id:"f4", n:"রুই কালিয়া", d:"মোটা টুকরো, আলু দিয়ে ঘন ঝোল", p:240, v:0},
+    {id:"f5", n:"কাতলা কালিয়া", d:"ভাজা মশলায় রান্না", p:260, v:0},
+    {id:"f6", n:"ভেটকি পাতুরি", d:"কলাপাতায় মোড়া ভেটকি", p:340, v:0}
+  ]},
+  {id:"meat", name:"মাংস", sub:"পোলাও বা ভাতের সঙ্গে", items:[
+    {id:"m1", n:"কষা মাংস", d:"খাসির মাংস, ধীরে কষানো", p:420, v:0},
+    {id:"m2", n:"মুরগির ঝোল", d:"আলু দিয়ে বাড়ির মতো ঝোল", p:200, v:0},
+    {id:"m3", n:"চিকেন কষা", d:"মাঝারি ঝাল, ঘন গ্রেভি", p:260, v:0},
+    {id:"m4", n:"মটন বিরিয়ানি", d:"আলু ও ডিম সহ", p:380, v:0},
+    {id:"m5", n:"ডিমের ডালনা", d:"দুটো ডিম, আলু দিয়ে", p:130, v:0}
+  ]},
+  {id:"veg", name:"নিরামিষ", sub:"ভাত, লুচি বা পরোটার সঙ্গে", items:[
+    {id:"v1", n:"শুক্তো", d:"পাঁচ তরকারির তেতো-মিষ্টি স্বাদ", p:110, v:1},
+    {id:"v2", n:"ছোলার ডাল", d:"নারকেল কুচি ও কিশমিশ দিয়ে", p:100, v:1},
+    {id:"v3", n:"আলুর দম", d:"ছোট আলু, কষা মশলা", p:120, v:1},
+    {id:"v4", n:"পনির কষা", d:"ঘন মশলার গ্রেভিতে", p:220, v:1},
+    {id:"v5", n:"বেগুন ভাজা", d:"কুচকুচে কালো বেগুনের গোল টুকরো", p:60, v:1},
+    {id:"v6", n:"সাদা ভাত", d:"গোবিন্দভোগ চালের", p:60, v:1}
+  ]},
+  {id:"snacks", name:"টিফিন ও রোল", sub:"বিকেলের খিদের জন্য", items:[
+    {id:"s1", n:"ফিশ ফ্রাই", d:"ভেটকির ফিলে, কাসুন্দি সহ", p:180, v:0},
+    {id:"s2", n:"চিকেন কাটলেট", d:"পেঁয়াজ-শসা-কাসুন্দি সহ", p:160, v:0},
+    {id:"s3", n:"এগ চিকেন রোল", d:"পরোটায় মোড়া", p:120, v:0},
+    {id:"s4", n:"লুচি ও আলুর দম", d:"চারটে গরম লুচি", p:110, v:1},
+    {id:"s5", n:"ঝালমুড়ি", d:"সর্ষের তেল, কাঁচা লঙ্কা, বাদাম", p:40, v:1}
+  ]},
+  {id:"sweet", name:"মিষ্টি", sub:"খাবারের শেষ পাতে", items:[
+    {id:"d1", n:"মিষ্টি দই", d:"মাটির ভাঁড়ে, নলেন গুড়ে", p:70, v:1},
+    {id:"d2", n:"রসগোল্লা", d:"দুটো", p:40, v:1},
+    {id:"d3", n:"সন্দেশ", d:"দুটো, ছানার তাজা সন্দেশ", p:50, v:1},
+    {id:"d4", n:"পায়েস", d:"গোবিন্দভোগ চাল ও খেজুর গুড়ে", p:80, v:1}
+  ]},
+  {id:"drink", name:"পানীয়", sub:"", items:[
+    {id:"k1", n:"গন্ধরাজ ঘোল", d:"ঠান্ডা, লেবুর গন্ধ", p:60, v:1},
+    {id:"k2", n:"আমপোড়া শরবত", d:"কাঁচা আম পুড়িয়ে", p:60, v:1},
+    {id:"k3", n:"ভাঁড়ের চা", d:"আদা-এলাচ দেওয়া", p:20, v:1},
+    {id:"k4", n:"ঠান্ডা পানীয়", d:"৩০০ মিলি", p:40, v:1}
+  ]}
+];
+
+var cart = {};
+var byId = {};
+MENU.forEach(function(c){ c.items.forEach(function(i){ byId[i.id] = i; }); });
+
+function $(id){ return document.getElementById(id); }
+function money(n){ try { return "₹" + n.toLocaleString("bn-IN"); } catch(e){ return "₹" + n; } }
+function num(n){ try { return n.toLocaleString("bn-IN"); } catch(e){ return String(n); } }
+function esc(s){ return String(s).replace(/[&<>"]/g, function(c){ return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]; }); }
+
+try { var saved = JSON.parse(localStorage.getItem("rosuighor-cart") || "{}"); Object.keys(saved).forEach(function(k){ if(byId[k] && saved[k] > 0) cart[k] = saved[k]; }); } catch(e){}
+function persist(){ try { localStorage.setItem("rosuighor-cart", JSON.stringify(cart)); } catch(e){} }
+
+function ctlHTML(id){
+  var q = cart[id] || 0;
+  if(!q) return '<button class="add" type="button" data-act="inc" data-id="'+id+'">যোগ করুন</button>';
+  return '<div class="step"><button type="button" data-act="dec" data-id="'+id+'" aria-label="কমান">−</button><span>'+num(q)+'</span><button type="button" data-act="inc" data-id="'+id+'" aria-label="বাড়ান">+</button></div>';
+}
+
+function buildMenu(){
+  var nav = "", html = "";
+  MENU.forEach(function(c, idx){
+    nav += '<li><button type="button" data-cat="'+c.id+'"'+(idx===0?' aria-current="true"':'')+'>'+esc(c.name)+'</button></li>';
+    html += '<section class="cat" id="cat-'+c.id+'"><h2>'+esc(c.name)+'</h2>'+(c.sub?'<p class="sub">'+esc(c.sub)+'</p>':'');
+    c.items.forEach(function(i){
+      html += '<div class="item"><div class="nm"><span class="dot'+(i.v?'':' nv')+'" role="img" aria-label="'+(i.v?'নিরামিষ':'আমিষ')+'"></span><span>'+esc(i.n)+'</span></div>'
+        + '<p class="ds">'+esc(i.d)+'</p><div class="pr">'+money(i.p)+'</div>'
+        + '<div class="ctl" data-ctl="'+i.id+'">'+ctlHTML(i.id)+'</div></div>';
+    });
+    html += '</section>';
+  });
+  $("catnav").innerHTML = nav;
+  $("menu").innerHTML = html;
+}
+
+function totals(){
+  var q = 0, t = 0;
+  Object.keys(cart).forEach(function(k){ q += cart[k]; t += cart[k] * byId[k].p; });
+  return {q:q, t:t};
+}
+
+function orderText(){
+  var tt = totals(), L = [];
+  L.push("নতুন অর্ডার – " + SHOP, "");
+  Object.keys(cart).forEach(function(k){
+    var i = byId[k];
+    L.push(num(cart[k]) + " x " + i.n + " – " + money(cart[k]*i.p));
+  });
+  L.push("", "মোট: " + money(tt.t), "");
+  L.push("নাম: " + $("cname").value.trim());
+  L.push("ফোন: " + $("cphone").value.trim());
+  var type = $("ctype").value;
+  L.push("ধরন: " + type);
+  if(type.indexOf("ডেলিভারি") > -1) L.push("ঠিকানা: " + $("caddr").value.trim());
+  var note = $("cnote").value.trim();
+  if(note) L.push("নোট: " + note);
+  return L.join("\n");
+}
+
+function renderCart(){
+  var keys = Object.keys(cart), tt = totals(), h = "";
+  if(!keys.length){
+    h = '<p class="empty">এখনো কিছু বাছা হয়নি। উপরের মেনু থেকে খাবার যোগ করুন।</p>';
+  } else {
+    keys.forEach(function(k){
+      var i = byId[k];
+      h += '<div class="line"><div class="t">'+esc(i.n)+'</div><div class="ctl2">'+ctlHTML(k)+'</div><div class="s">'+money(cart[k]*i.p)+'</div></div>';
+    });
+    h += '<div class="total"><span>মোট</span><span>'+money(tt.t)+'</span></div>';
+  }
+  $("cartlines").innerHTML = h;
+  $("bar").hidden = tt.q === 0;
+  $("barcount").textContent = num(tt.q) + "টি খাবার";
+  $("bartotal").textContent = money(tt.t);
+  document.querySelectorAll("[data-ctl]").forEach(function(el){ el.innerHTML = ctlHTML(el.getAttribute("data-ctl")); });
+  refreshSend();
+}
+
+function refreshSend(){
+  var tt = totals(), type = $("ctype").value, needAddr = type.indexOf("ডেলিভারি") > -1;
+  $("addrbox").hidden = !needAddr;
+  var ok = tt.q > 0 && $("cname").value.trim() && $("cphone").value.trim() && (!needAddr || $("caddr").value.trim());
+  var text = tt.q ? orderText() : "";
+  $("preview").value = text;
+  var a = $("send");
+  a.setAttribute("aria-disabled", ok ? "false" : "true");
+  a.href = ok ? "https://wa.me/" + WHATSAPP + "?text=" + encodeURIComponent(text) : "#";
+  var m = $("msg");
+  m.className = "msg";
+  if(!tt.q) m.textContent = "";
+  else if(!ok) m.textContent = "অর্ডার পাঠাতে নাম, ফোন" + (needAddr ? " আর ঠিকানা" : "") + " দিন।";
+  else m.textContent = "বোতামে চাপ দিলে WhatsApp খুলবে, শুধু ‘Send’ চাপুন।";
+}
+
+document.addEventListener("click", function(e){
+  var b = e.target.closest("button");
+  if(!b) return;
+  var act = b.getAttribute("data-act"), id = b.getAttribute("data-id");
+  if(act === "inc"){ cart[id] = (cart[id] || 0) + 1; persist(); renderCart(); return; }
+  if(act === "dec"){ cart[id] = (cart[id] || 0) - 1; if(cart[id] <= 0) delete cart[id]; persist(); renderCart(); return; }
+  var cat = b.getAttribute("data-cat");
+  if(cat){ var s = $("cat-"+cat); if(s) s.scrollIntoView({behavior:"smooth", block:"start"}); }
+});
+
+$("barbtn").addEventListener("click", function(){ $("order").scrollIntoView({behavior:"smooth", block:"start"}); });
+["cname","cphone","caddr","cnote","ctype"].forEach(function(id){ $(id).addEventListener("input", refreshSend); $(id).addEventListener("change", refreshSend); });
+
+$("send").addEventListener("click", function(e){
+  if(this.getAttribute("aria-disabled") === "true"){ e.preventDefault(); }
+});
+
+$("copy").addEventListener("click", function(){
+  var m = $("msg");
+  if(!totals().q){ m.className = "msg err"; m.textContent = "আগে কিছু খাবার যোগ করুন।"; return; }
+  var text = orderText();
+  function fallback(){
+    var d = document.querySelector("details"); d.open = true;
+    var p = $("preview"); p.focus(); p.select();
+    m.className = "msg"; m.textContent = "লেখাটি বেছে দেওয়া হয়েছে, নিজে কপি করে নিন।";
+  }
+  try {
+    navigator.clipboard.writeText(text).then(function(){ m.className = "msg"; m.textContent = "অর্ডারের লেখা কপি হয়েছে।"; }, fallback);
+  } catch(err){ fallback(); }
+});
+
+$("clear").addEventListener("click", function(){ cart = {}; persist(); renderCart(); });
+
+// highlight the category being read
+if("IntersectionObserver" in window){
+  var io = new IntersectionObserver(function(entries){
+    entries.forEach(function(en){
+      if(en.isIntersecting){
+        var id = en.target.id.replace("cat-", "");
+        document.querySelectorAll("#catnav button").forEach(function(b){
+          if(b.getAttribute("data-cat") === id){ b.setAttribute("aria-current","true"); var u = $("catnav"); u.scrollLeft = b.offsetLeft - (u.clientWidth - b.offsetWidth) / 2; }
+          else b.removeAttribute("aria-current");
+        });
+      }
+    });
+  }, {rootMargin:"-30% 0px -60% 0px"});
+  setTimeout(function(){ document.querySelectorAll("section.cat").forEach(function(s){ io.observe(s); }); }, 0);
+}
+
+buildMenu();
+renderCart();
+</script>
+
+</body>
+</html>
